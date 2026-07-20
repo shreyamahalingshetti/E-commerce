@@ -1,15 +1,36 @@
 const multer = require('multer');
-const path = require('path');
+const cloudinary = require('../config/cloudinary');
 
-const storage = multer.diskStorage({
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  }
-});
-
-const upload = multer({
+const storage = multer.memoryStorage();
+const uploadMulter = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
 });
 
-module.exports = upload;
+const handleCloudinaryUpload = (req, res, next) => {
+  if (!req.file) {
+    return next();
+  }
+
+  const uploadStream = cloudinary.uploader.upload_stream(
+    { folder: 'products' },
+    (error, result) => {
+      if (error) {
+        return next(error);
+      }
+      req.body.image_url = result.secure_url;
+      next();
+    }
+  );
+
+  uploadStream.end(req.file.buffer);
+};
+
+const uploadSingleImage = [uploadMulter.single('image'), handleCloudinaryUpload];
+
+module.exports = {
+  uploadMulter,
+  handleCloudinaryUpload,
+  uploadSingleImage
+};
+

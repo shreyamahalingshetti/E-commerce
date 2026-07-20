@@ -1,36 +1,58 @@
 const userModel = require('../models/userModel');
 const { hashPassword, comparePassword } = require('../utils/hash');
-const { generateToken } = require('../utils/jwt');
+const { signToken } = require('../utils/jwt');
 
-exports.register = async (req, res, next) => {
+const register = async (req, res, next) => {
   try {
     const { name, email, password, role } = req.body;
+    
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'Name, email, and password are required' });
+    }
+
     const existingUser = await userModel.findByEmail(email);
     if (existingUser) {
       return res.status(400).json({ error: 'User with this email already exists' });
     }
+
     const hashedPassword = await hashPassword(password);
-    const newUser = await userModel.createUser(name, email, hashedPassword, role || 'user');
-    const token = generateToken({ id: newUser.id, email: newUser.email, role: newUser.role });
-    res.status(201).json({ user: newUser, token });
+    const userRole = role || 'user';
+    const newUser = await userModel.createUser(name, email, hashedPassword, userRole);
+    
+    const token = signToken({ id: newUser.id, role: newUser.role });
+
+    res.status(201).json({
+      message: 'User registered successfully',
+      user: { id: newUser.id, name: newUser.name, email: newUser.email, role: newUser.role },
+      token
+    });
   } catch (err) {
     next(err);
   }
 };
 
-exports.login = async (req, res, next) => {
+const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
     const user = await userModel.findByEmail(email);
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
+
     const isMatch = await comparePassword(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
-    const token = generateToken({ id: user.id, email: user.email, role: user.role });
+
+    const token = signToken({ id: user.id, role: user.role });
+
     res.status(200).json({
+      message: 'Login successful',
       user: { id: user.id, name: user.name, email: user.email, role: user.role },
       token
     });
@@ -39,7 +61,7 @@ exports.login = async (req, res, next) => {
   }
 };
 
-exports.getProfile = async (req, res, next) => {
+const getProfile = async (req, res, next) => {
   try {
     const user = await userModel.findById(req.user.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
@@ -49,3 +71,10 @@ exports.getProfile = async (req, res, next) => {
     next(err);
   }
 };
+
+module.exports = {
+  register,
+  login,
+  getProfile
+};
+

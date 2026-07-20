@@ -1,11 +1,22 @@
 const jwt = require('jsonwebtoken');
 
-const SECRET = process.env.JWT_SECRET || 'fallback_secret';
+const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key';
 
-exports.generateToken = (payload) => {
-  return jwt.sign(payload, SECRET, { expiresIn: '7d' });
+const signToken = (payload) => {
+  return jwt.sign(
+    { id: payload.id, role: payload.role },
+    JWT_SECRET,
+    { expiresIn: '7d' }
+  );
 };
 
-exports.verifyToken = (token) => {
-  return jwt.verify(token, SECRET);
+const verifyToken = (token) => {
+  return jwt.verify(token, JWT_SECRET);
 };
+
+module.exports = {
+  signToken,
+  generateToken: signToken,
+  verifyToken
+};
+

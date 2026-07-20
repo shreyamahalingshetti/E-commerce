@@ -1,16 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { createOrder, getUserOrders, getAllOrders, updateOrderStatus } = require('../controllers/orderController');
+const { getMyOrders, getSellerOrders, getAllOrders, getOrderStats } = require('../controllers/orderController');
 const authMiddleware = require('../middleware/auth');
 const roleGuard = require('../middleware/roleGuard');
 
 router.use(authMiddleware);
 
-router.post('/', createOrder);
-router.get('/my-orders', getUserOrders);
-
-// Admin & Sales management
-router.get('/', roleGuard('admin', 'sales'), getAllOrders);
-router.put('/:id/status', roleGuard('admin', 'sales'), updateOrderStatus);
+router.get('/mine', getMyOrders);
+router.get('/seller', roleGuard('sales_person', 'sales'), getSellerOrders);
+router.get('/all', roleGuard('admin'), getAllOrders);
+router.get('/stats', roleGuard('admin'), getOrderStats);
 
 module.exports = router;
+

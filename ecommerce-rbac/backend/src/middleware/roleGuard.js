@@ -1,7 +1,7 @@
 const roleGuard = (...allowedRoles) => {
   return (req, res, next) => {
-    if (!req.user) {
-      return res.status(401).json({ error: 'Unauthorized: User authentication required' });
+    if (!req.user || !req.user.role) {
+      return res.status(401).json({ error: 'Unauthorized: Authentication required' });
     }
 
     if (!allowedRoles.includes(req.user.role)) {
@@ -13,3 +13,4 @@ const roleGuard = (...allowedRoles) => {
 };
 
 module.exports = roleGuard;
+
