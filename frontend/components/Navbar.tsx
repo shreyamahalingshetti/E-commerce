@@ -20,9 +20,13 @@ import {
   Shield,
   Store
 } from 'lucide-react';
+import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const { cartCount } = useCart();
+  const { wishlistCount } = useWishlist();
   const pathname = usePathname();
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -86,7 +90,7 @@ export default function Navbar() {
             >
               <ShoppingCart size={18} />
               <span>Cart</span>
-              <span className="badge-count">2</span>
+              <span className="badge-count">{cartCount}</span>
             </Link>
 
             <Link
@@ -95,7 +99,7 @@ export default function Navbar() {
             >
               <Heart size={18} />
               <span>Wishlist</span>
-              <span className="badge-count">5</span>
+              <span className="badge-count">{wishlistCount}</span>
             </Link>
 
             <Link
@@ -244,7 +248,7 @@ export default function Navbar() {
           >
             <ShoppingCart size={18} />
             <span>Cart</span>
-            <span className="badge-count" style={{ marginLeft: 'auto' }}>2</span>
+            <span className="badge-count" style={{ marginLeft: 'auto' }}>{cartCount}</span>
           </Link>
 
           <Link
@@ -254,7 +258,7 @@ export default function Navbar() {
           >
             <Heart size={18} />
             <span>Wishlist</span>
-            <span className="badge-count" style={{ marginLeft: 'auto' }}>5</span>
+            <span className="badge-count" style={{ marginLeft: 'auto' }}>{wishlistCount}</span>
           </Link>
 
           <Link

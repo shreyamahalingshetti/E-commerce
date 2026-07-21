@@ -4,7 +4,9 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ShoppingCart, Heart, Store } from 'lucide-react';
-import api from '../lib/api';
+import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 
 export interface ProductCardProps {
   product: {
@@ -23,9 +25,11 @@ export interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const router = useRouter();
+  const { user } = useAuth();
+  const { addToCart } = useCart();
+  const { toggleWishlist, isWishlisted } = useWishlist();
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // Prevent navigation if clicking action buttons
     if ((e.target as HTMLElement).closest('button')) {
       return;
     }
@@ -34,23 +38,33 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!user) {
+      router.push('/login');
+      return;
+    }
     try {
-      await api.post('/cart', { product_id: product.id, quantity: 1 });
+      await addToCart(product.id, 1);
       alert('Product added to cart!');
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to add to cart. Please log in.');
+      alert(err.response?.data?.error || 'Failed to add to cart.');
     }
   };
 
   const handleToggleWishlist = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!user) {
+      router.push('/login');
+      return;
+    }
     try {
-      const res = await api.post('/wishlist/toggle', { product_id: product.id });
-      alert(res.data?.message || 'Wishlist updated!');
+      const added = await toggleWishlist(product.id);
+      alert(added ? 'Added to wishlist!' : 'Removed from wishlist!');
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to update wishlist. Please log in.');
+      alert(err.response?.data?.error || 'Failed to update wishlist.');
     }
   };
+
+  const isItemWishlisted = isWishlisted(product.id);
 
   const displayImage = product.image_url || product.imageUrl;
   const shopOrOwner = product.shop_name || product.owner_name;
@@ -136,7 +150,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             color: '#ef4444'
           }}
         >
-          <Heart size={18} />
+          <Heart size={18} fill={isItemWishlisted ? '#ef4444' : 'none'} />
         </button>
       </div>
 
@@ -156,7 +170,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div style={{ marginTop: 'auto', paddingTop: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
             <span style={{ fontSize: '18px', fontWeight: 700, color: '#2563eb' }}>
-              ${parseFloat(String(product.price)).toFixed(2)}
+              ₹{parseFloat(String(product.price)).toFixed(2)}
             </span>
           </div>
 

@@ -27,6 +27,10 @@ export const openRazorpayCheckout = async (orderData, router) => {
     name: 'RBAC Store',
     description: 'Order Payment',
     order_id: orderData.id,
+    prefill: {
+      name: orderData.user_name || 'Customer',
+      email: orderData.user_email || ''
+    },
     handler: async function (response) {
       try {
         await api.post('/payments/verify', {

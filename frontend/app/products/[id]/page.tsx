@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import api from '../../../lib/api';
 import { useAuth } from '../../../context/AuthContext';
+import { useCart } from '../../../context/CartContext';
+import { useWishlist } from '../../../context/WishlistContext';
 import ProductForm from '../../../components/ProductForm';
 import {
   ArrowLeft,
@@ -21,6 +23,8 @@ export default function ProductDetailPage() {
   const { id } = useParams();
   const router = useRouter();
   const { user } = useAuth();
+  const { addToCart } = useCart();
+  const { toggleWishlist, isWishlisted } = useWishlist();
 
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -47,24 +51,32 @@ export default function ProductDetailPage() {
   };
 
   const handleAddToCart = async () => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
     setActionLoading(true);
     try {
-      await api.post('/cart', { product_id: product.id, quantity });
+      await addToCart(product.id, quantity);
       alert('Product added to cart!');
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to add to cart. Please log in.');
+      alert(err.response?.data?.error || 'Failed to add to cart.');
     } finally {
       setActionLoading(false);
     }
   };
 
   const handleAddToWishlist = async () => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
     setActionLoading(true);
     try {
-      const res = await api.post('/wishlist/toggle', { product_id: product.id });
-      alert(res.data?.message || 'Product added to wishlist!');
+      const added = await toggleWishlist(product.id);
+      alert(added ? 'Product added to wishlist!' : 'Product removed from wishlist!');
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Failed to update wishlist. Please log in.');
+      alert(err.response?.data?.error || 'Failed to update wishlist.');
     } finally {
       setActionLoading(false);
     }
@@ -220,9 +232,9 @@ export default function ProductDetailPage() {
               <span>Seller: <strong>{ownerDisplayName}</strong></span>
             </div>
 
-            <div style={{ fontSize: '32px', fontWeight: 800, color: '#2563eb', marginBottom: '16px' }}>
-              ${parseFloat(String(product.price)).toFixed(2)}
-            </div>
+            <span style={{ fontSize: '28px', fontWeight: 800, color: '#2563eb' }}>
+              ₹{parseFloat(String(product.price)).toFixed(2)}
+            </span>
 
             <p style={{ color: '#475569', lineHeight: '1.6', fontSize: '15px', marginBottom: '24px' }}>
               {product.description || 'No detailed description provided for this item.'}
@@ -302,8 +314,8 @@ export default function ProductDetailPage() {
                       gap: '6px'
                     }}
                   >
-                    <Heart size={18} />
-                    <span>Wishlist</span>
+                    <Heart size={18} fill={isWishlisted(product?.id) ? '#dc2626' : 'none'} />
+                    <span>{isWishlisted(product?.id) ? 'Wishlisted' : 'Wishlist'}</span>
                   </button>
                 </div>
               </div>
