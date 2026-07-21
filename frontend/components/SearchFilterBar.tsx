@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, RotateCcw } from 'lucide-react';
+import { PRODUCT_CATEGORIES } from '../lib/constants';
 
 export interface FilterValues {
   keyword: string;
@@ -134,27 +135,25 @@ export default function SearchFilterBar({
             }}
           >
             <option value="">All Categories</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Clothing">Clothing</option>
-            <option value="Footwear">Footwear</option>
-            <option value="Home & Kitchen">Home & Kitchen</option>
-            <option value="Books">Books</option>
-            <option value="Accessories">Accessories</option>
+            {PRODUCT_CATEGORIES.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
           </select>
         </div>
 
-        {/* Min Price Input */}
+        {/* Min Price */}
         <div>
           <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: '6px' }}>
-            Min Price ($)
+            Min Price (₹)
           </label>
           <input
             type="number"
             name="minPrice"
-            placeholder="0"
-            min="0"
             value={internalFilters.minPrice}
             onChange={handleChange}
+            placeholder="0"
             style={{
               width: '100%',
               padding: '9px 12px',
@@ -166,10 +165,10 @@ export default function SearchFilterBar({
           />
         </div>
 
-        {/* Max Price Input */}
+        {/* Max Price */}
         <div>
           <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: '6px' }}>
-            Max Price ($)
+            Max Price (₹)
           </label>
           <input
             type="number"

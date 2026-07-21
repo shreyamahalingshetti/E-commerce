@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '../lib/api';
 import { uploadImageToCloudinary } from '../lib/cloudinary';
+import { PRODUCT_CATEGORIES } from '../lib/constants';
 import { Upload, AlertCircle, Image as ImageIcon, CheckCircle, Loader2 } from 'lucide-react';
 
 interface ProductFormProps {
@@ -174,7 +175,7 @@ export default function ProductForm({ existingProduct, onSuccess }: ProductFormP
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '18px' }}>
         <div>
           <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: '6px' }}>
-            Price ($) <span style={{ color: '#ef4444' }}>*</span>
+            Price (₹) <span style={{ color: '#ef4444' }}>*</span>
           </label>
           <input
             type="number"
@@ -209,13 +210,18 @@ export default function ProductForm({ existingProduct, onSuccess }: ProductFormP
         <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: '6px' }}>
           Category
         </label>
-        <input
-          type="text"
+        <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          placeholder="e.g. Electronics, Clothing, Footwear"
-          style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
-        />
+          style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px', background: '#fff', outline: 'none' }}
+        >
+          <option value="">Select a Category</option>
+          {PRODUCT_CATEGORIES.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Image Upload & Immediate Preview */}

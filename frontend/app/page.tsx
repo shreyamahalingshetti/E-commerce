@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import api from '../lib/api';
 import ProductCard from '../components/ProductCard';
 import SearchFilterBar, { FilterValues } from '../components/SearchFilterBar';
+import { PRODUCT_CATEGORIES } from '../lib/constants';
 import { PackageX } from 'lucide-react';
 
 export default function HomePage() {
@@ -54,6 +55,46 @@ export default function HomePage() {
         <p style={{ color: '#64748b', fontSize: '15px', margin: 0 }}>
           Discover items from verified sellers across all categories.
         </p>
+      </div>
+
+      <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '10px', marginBottom: '16px', scrollbarWidth: 'thin' }}>
+        <button
+          onClick={() => handleFilterChange({ ...filters, category: '' })}
+          style={{
+            padding: '7px 16px',
+            borderRadius: '20px',
+            fontSize: '13px',
+            fontWeight: 600,
+            whiteSpace: 'nowrap',
+            background: filters.category === '' ? '#2563eb' : '#f1f5f9',
+            color: filters.category === '' ? '#ffffff' : '#475569',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          All Categories
+        </button>
+        {PRODUCT_CATEGORIES.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => handleFilterChange({ ...filters, category: cat })}
+            style={{
+              padding: '7px 16px',
+              borderRadius: '20px',
+              fontSize: '13px',
+              fontWeight: 600,
+              whiteSpace: 'nowrap',
+              background: filters.category === cat ? '#2563eb' : '#f1f5f9',
+              color: filters.category === cat ? '#ffffff' : '#475569',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            {cat}
+          </button>
+        ))}
       </div>
 
       <SearchFilterBar

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import ProtectedRoute from '../../../components/ProtectedRoute';
 import { useAuth } from '../../../context/AuthContext';
 import api from '../../../lib/api';
+import { PRODUCT_CATEGORIES } from '../../../lib/constants';
 import Link from 'next/link';
 import {
   Store,
@@ -342,7 +343,7 @@ export default function SellerDashboardPage() {
                     >
                       <div>
                         <span style={{ fontSize: '18px', fontWeight: 700, color: '#2563eb' }}>
-                          ${parseFloat(String(product.price)).toFixed(2)}
+                          ₹{parseFloat(String(product.price)).toFixed(2)}
                         </span>
                         <div style={{ fontSize: '12px', color: '#64748b' }}>Stock: {product.stock}</div>
                       </div>
@@ -475,7 +476,7 @@ export default function SellerDashboardPage() {
                       <ul style={{ paddingLeft: '20px', margin: 0 }}>
                         {order.items.map((item, idx) => (
                           <li key={idx} style={{ margin: '4px 0', fontSize: '14px', color: '#334155' }}>
-                            <strong>{item.product_name}</strong> — {item.quantity} x ${parseFloat(String(item.price)).toFixed(2)}
+                            <strong>{item.product_name}</strong> — {item.quantity} x ₹{parseFloat(String(item.price)).toFixed(2)}
                           </li>
                         ))}
                       </ul>
@@ -498,7 +499,7 @@ export default function SellerDashboardPage() {
                   >
                     <span>Placed on: {new Date(order.created_at).toLocaleDateString()}</span>
                     <span style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a' }}>
-                      Order Total: ${parseFloat(String(order.total_amount)).toFixed(2)}
+                      Order Total: ₹{parseFloat(String(order.total_amount)).toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -583,7 +584,7 @@ export default function SellerDashboardPage() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
                   <div>
                     <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
-                      Price ($)
+                      Price (₹)
                     </label>
                     <input
                       type="number"
@@ -613,13 +614,18 @@ export default function SellerDashboardPage() {
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: '4px' }}>
                     Category
                   </label>
-                  <input
-                    type="text"
+                  <select
                     value={editCategory}
                     onChange={(e) => setEditCategory(e.target.value)}
-                    placeholder="e.g. Electronics"
-                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                  />
+                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#fff', outline: 'none' }}
+                  >
+                    <option value="">Select a Category</option>
+                    {PRODUCT_CATEGORIES.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div style={{ marginBottom: '20px' }}>
