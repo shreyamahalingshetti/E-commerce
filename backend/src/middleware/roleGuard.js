@@ -5,7 +5,7 @@ const roleGuard = (...allowedRoles) => {
     }
 
     if (!allowedRoles.includes(req.user.role)) {
-      return res.status(403).json({ error: 'Forbidden: Insufficient permissions' });
+      return res.status(403).json({ error: 'Forbidden — insufficient permissions' });
     }
 
     next();
@@ -13,4 +13,4 @@ const roleGuard = (...allowedRoles) => {
 };
 
 module.exports = roleGuard;
-
+module.exports.roleGuard = roleGuard;

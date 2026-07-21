@@ -1,8 +1,8 @@
 import api from './api';
 
-export const loadRazorpayScript = () => {
+export const loadRazorpayScript = (): Promise<boolean> => {
   return new Promise((resolve) => {
-    if (typeof window !== 'undefined' && window.Razorpay) {
+    if (typeof window !== 'undefined' && (window as any).Razorpay) {
       return resolve(true);
     }
     const script = document.createElement('script');
@@ -13,7 +13,7 @@ export const loadRazorpayScript = () => {
   });
 };
 
-export const openRazorpayCheckout = async (orderData, router) => {
+export const openRazorpayCheckout = async (orderData: any, router?: any) => {
   const loaded = await loadRazorpayScript();
   if (!loaded) {
     alert('Razorpay SDK failed to load. Please check your internet connection.');
@@ -27,7 +27,7 @@ export const openRazorpayCheckout = async (orderData, router) => {
     name: 'RBAC Store',
     description: 'Order Payment',
     order_id: orderData.id,
-    handler: async function (response) {
+    handler: async function (response: any) {
       try {
         await api.post('/payments/verify', {
           razorpay_order_id: response.razorpay_order_id,
@@ -40,7 +40,7 @@ export const openRazorpayCheckout = async (orderData, router) => {
         } else if (typeof window !== 'undefined') {
           window.location.href = '/orders';
         }
-      } catch (err) {
+      } catch (err: any) {
         alert(err.response?.data?.error || 'Payment verification failed');
       }
     },
@@ -49,7 +49,7 @@ export const openRazorpayCheckout = async (orderData, router) => {
     }
   };
 
-  const paymentObject = new window.Razorpay(options);
+  const paymentObject = new (window as any).Razorpay(options);
   paymentObject.open();
 };
 

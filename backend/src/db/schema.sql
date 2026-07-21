@@ -13,6 +13,7 @@ CREATE TABLE users (
     email         VARCHAR(150) UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
     role          user_role NOT NULL DEFAULT 'user',
+    business_name VARCHAR(255),
     created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
