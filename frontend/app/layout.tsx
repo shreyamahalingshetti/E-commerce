@@ -4,6 +4,7 @@ import { AuthProvider } from '../context/AuthContext';
 import { CartProvider } from '../context/CartContext';
 import { WishlistProvider } from '../context/WishlistContext';
 import Navbar from '../components/Navbar';
+import OfflineDetector from '../components/OfflineDetector';
 
 export const metadata = {
   title: 'RBAC Store - Modern E-Commerce',
@@ -17,6 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <CartProvider>
             <WishlistProvider>
+              <OfflineDetector />
               <Navbar />
               <main style={{ minHeight: 'calc(100vh - 74px)' }}>
                 {children}
