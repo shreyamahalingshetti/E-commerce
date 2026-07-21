@@ -45,7 +45,15 @@ CREATE TABLE wishlist (
     user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    UNIQUE (user_id, product_id)   -- prevent duplicate wishlist entries
+    UNIQUE (user_id, product_id)
+);
+
+CREATE TABLE IF NOT EXISTS wishlist_items (
+    id         SERIAL PRIMARY KEY,
+    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (user_id, product_id)
 );
 
 -- ============================================
@@ -57,7 +65,7 @@ CREATE TABLE cart_items (
     product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
     quantity   INTEGER NOT NULL DEFAULT 1 CHECK (quantity > 0),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    UNIQUE (user_id, product_id)   -- one row per product per user; update qty instead
+    UNIQUE (user_id, product_id)
 );
 
 -- ============================================

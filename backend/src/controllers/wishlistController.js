@@ -2,7 +2,7 @@ const wishlistModel = require('../models/wishlistModel');
 
 const getWishlist = async (req, res, next) => {
   try {
-    const items = await wishlistModel.findByUserId(req.user.id);
+    const items = await wishlistModel.getWishlistByUser(req.user.id);
     res.status(200).json(items);
   } catch (err) {
     next(err);
@@ -11,12 +11,12 @@ const getWishlist = async (req, res, next) => {
 
 const addToWishlist = async (req, res, next) => {
   try {
-    const { product_id } = req.body;
-    if (!product_id) {
-      return res.status(400).json({ error: 'product_id is required' });
+    const productId = req.body.productId || req.body.product_id;
+    if (!productId) {
+      return res.status(400).json({ error: 'productId is required' });
     }
-    const item = await wishlistModel.addItem(req.user.id, product_id);
-    res.status(201).json(item);
+    const item = await wishlistModel.addWishlistItem(req.user.id, productId);
+    res.status(201).json(item || { message: 'Item added to wishlist' });
   } catch (err) {
     next(err);
   }
@@ -24,8 +24,8 @@ const addToWishlist = async (req, res, next) => {
 
 const removeFromWishlist = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const item = await wishlistModel.removeItem(id, req.user.id);
+    const productId = req.params.productId || req.params.id || req.body.productId || req.body.product_id;
+    const item = await wishlistModel.removeWishlistItem(req.user.id, productId);
     if (!item) {
       return res.status(404).json({ error: 'Wishlist item not found' });
     }
@@ -35,9 +35,22 @@ const removeFromWishlist = async (req, res, next) => {
   }
 };
 
+const toggleWishlist = async (req, res, next) => {
+  try {
+    const productId = req.body.productId || req.body.product_id;
+    if (!productId) {
+      return res.status(400).json({ error: 'productId is required' });
+    }
+    const result = await wishlistModel.toggleItem(req.user.id, productId);
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   getWishlist,
   addToWishlist,
-  removeFromWishlist
+  removeFromWishlist,
+  toggleWishlist
 };
-

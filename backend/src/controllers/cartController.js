@@ -2,7 +2,7 @@ const cartModel = require('../models/cartModel');
 
 const getCart = async (req, res, next) => {
   try {
-    const items = await cartModel.findByUserId(req.user.id);
+    const items = await cartModel.getCartByUser(req.user.id);
     res.status(200).json(items);
   } catch (err) {
     next(err);
@@ -11,29 +11,35 @@ const getCart = async (req, res, next) => {
 
 const addToCart = async (req, res, next) => {
   try {
-    const { product_id, quantity } = req.body;
-    if (!product_id) {
-      return res.status(400).json({ error: 'product_id is required' });
+    const productId = req.body.productId || req.body.product_id;
+    const quantity = req.body.quantity || 1;
+
+    if (!productId) {
+      return res.status(400).json({ error: 'productId is required' });
     }
-    const item = await cartModel.addItem(req.user.id, product_id, quantity ? parseInt(quantity, 10) : 1);
+
+    const item = await cartModel.upsertCartItem(req.user.id, productId, quantity);
     res.status(201).json(item);
   } catch (err) {
     next(err);
   }
 };
 
-const updateCartQuantity = async (req, res, next) => {
+const updateQuantity = async (req, res, next) => {
   try {
+    const productId = req.params.productId || req.body.productId || req.body.product_id;
     const { quantity } = req.body;
-    const { id } = req.params;
+
     if (quantity === undefined) {
       return res.status(400).json({ error: 'quantity is required' });
     }
-    const item = await cartModel.updateQuantity(id, req.user.id, parseInt(quantity, 10));
-    if (!item) {
+
+    const item = await cartModel.setCartItemQuantity(req.user.id, productId, quantity);
+    if (!item && quantity > 0) {
       return res.status(404).json({ error: 'Cart item not found' });
     }
-    res.status(200).json(item);
+
+    res.status(200).json(item || { message: 'Item removed from cart' });
   } catch (err) {
     next(err);
   }
@@ -41,8 +47,8 @@ const updateCartQuantity = async (req, res, next) => {
 
 const removeFromCart = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const item = await cartModel.removeItem(id, req.user.id);
+    const productId = req.params.productId || req.body.productId || req.body.product_id;
+    const item = await cartModel.removeCartItem(req.user.id, productId);
     if (!item) {
       return res.status(404).json({ error: 'Cart item not found' });
     }
@@ -55,7 +61,7 @@ const removeFromCart = async (req, res, next) => {
 module.exports = {
   getCart,
   addToCart,
-  updateCartQuantity,
+  updateQuantity,
+  updateCartQuantity: updateQuantity,
   removeFromCart
 };
-

@@ -30,7 +30,13 @@ const createOrder = async (userId, totalAmount, items, razorpayOrderId, razorpay
     try {
       await client.query('DELETE FROM cart_items WHERE user_id = $1', [userId]);
     } catch (e) {
-      await client.query('DELETE FROM cart WHERE user_id = $1', [userId]);
+      if (e.code === '42P01') {
+        try {
+          await client.query('DELETE FROM cart WHERE user_id = $1', [userId]);
+        } catch (err) {
+          // Table cart does not exist either
+        }
+      }
     }
 
     await client.query('COMMIT');
@@ -70,7 +76,7 @@ const getUserOrders = async (userId) => {
 
 const getSellerOrders = async (sellerId) => {
   const query = `
-    SELECT DISTINCT o.id, o.user_id, u.name as customer_name, u.email as customer_email, o.total_amount, o.status, o.created_at,
+    SELECT o.id, o.user_id, u.name as customer_name, u.email as customer_email, o.total_amount, o.status, o.created_at,
     COALESCE(
       json_agg(
         json_build_object(
