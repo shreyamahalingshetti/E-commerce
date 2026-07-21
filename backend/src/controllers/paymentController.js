@@ -93,7 +93,19 @@ const verifyPayment = async (req, res, next) => {
       razorpay_payment_id
     );
 
-    res.status(200).json(createdOrder);
+    // Explicitly clear cart in DB after successful order creation
+    try {
+      await cartModel.clearCart(req.user.id);
+      console.log(`Successfully cleared cart for user ID ${req.user.id} after payment verification.`);
+    } catch (clearErr) {
+      console.error(`Error clearing cart for user ID ${req.user.id}:`, clearErr);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Payment verified and cart cleared successfully',
+      order: createdOrder
+    });
   } catch (err) {
     next(err);
   }

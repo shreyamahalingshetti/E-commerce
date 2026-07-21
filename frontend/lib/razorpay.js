@@ -13,7 +13,7 @@ export const loadRazorpayScript = () => {
   });
 };
 
-export const openRazorpayCheckout = async (orderData, router) => {
+export const openRazorpayCheckout = async (orderData, router, onSuccess) => {
   const loaded = await loadRazorpayScript();
   if (!loaded) {
     alert('Razorpay SDK failed to load. Please check your internet connection.');
@@ -33,16 +33,21 @@ export const openRazorpayCheckout = async (orderData, router) => {
     },
     handler: async function (response) {
       try {
-        await api.post('/payments/verify', {
+        const verifyRes = await api.post('/payments/verify', {
           razorpay_order_id: response.razorpay_order_id,
           razorpay_payment_id: response.razorpay_payment_id,
           razorpay_signature: response.razorpay_signature
         });
-        alert('Payment verified! Order placed successfully.');
-        if (router && typeof router.push === 'function') {
-          router.push('/orders');
-        } else if (typeof window !== 'undefined') {
-          window.location.href = '/orders';
+
+        if (onSuccess) {
+          await onSuccess(verifyRes.data);
+        } else {
+          alert('Payment verified! Order placed successfully.');
+          if (router && typeof router.push === 'function') {
+            router.push('/orders');
+          } else if (typeof window !== 'undefined') {
+            window.location.href = '/orders';
+          }
         }
       } catch (err) {
         alert(err.response?.data?.error || 'Payment verification failed');

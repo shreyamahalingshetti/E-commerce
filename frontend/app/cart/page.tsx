@@ -11,7 +11,7 @@ import { openRazorpayCheckout } from '../../lib/razorpay';
 import { ShoppingBag, ArrowRight } from 'lucide-react';
 
 export default function CartPage() {
-  const { cartItems, loading } = useCart();
+  const { cartItems, loading, refreshCart } = useCart();
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const router = useRouter();
 
@@ -25,7 +25,11 @@ export default function CartPage() {
     setCheckoutLoading(true);
     try {
       const orderRes = await api.post('/payments/create-order', { amount: totalAmount });
-      await openRazorpayCheckout(orderRes.data, router);
+      await openRazorpayCheckout(orderRes.data, router, async () => {
+        await refreshCart();
+        alert('Payment verified! Order placed successfully.');
+        router.push('/orders');
+      });
     } catch (err: any) {
       alert(err.response?.data?.error || 'Failed to initiate checkout');
     } finally {

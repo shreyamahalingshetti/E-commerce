@@ -48,8 +48,35 @@ const createUser = async (dataOrName, emailParam, passwordParam, roleParam = 'us
   }
 };
 
+const getAllUsers = async () => {
+  const res = await db.query(
+    'SELECT id, name, email, role, business_name, created_at FROM users ORDER BY created_at DESC'
+  );
+  return res.rows;
+};
+
+const updateUserRole = async (userId, newRole) => {
+  const validRoles = ['user', 'sales_person', 'admin'];
+  if (!validRoles.includes(newRole)) {
+    throw new Error('Invalid role specified');
+  }
+
+  const res = await db.query(
+    `UPDATE users 
+     SET role = $1, 
+         business_name = (CASE WHEN $1 = 'sales_person' THEN business_name ELSE NULL END) 
+     WHERE id = $2 
+     RETURNING id, name, email, role, business_name, created_at`,
+    [newRole, userId]
+  );
+
+  return res.rows[0];
+};
+
 module.exports = {
   findByEmail,
   findById,
-  createUser
+  createUser,
+  getAllUsers,
+  updateUserRole
 };

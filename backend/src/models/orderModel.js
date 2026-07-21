@@ -143,6 +143,11 @@ module.exports = {
   getAllOrders,
   getOrderStats,
 
+  // Prompt function aliases
+  getOrdersByUser: getUserOrders,
+  getOrdersBySeller: getSellerOrders,
+  getSalesStats: getOrderStats,
+
   // Backward compatibility exports
   findByUserId: getUserOrders,
   findAll: getAllOrders
